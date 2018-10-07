@@ -1,11 +1,19 @@
-# Project Title
+# Another ROM manager
 
-One Paragraph of project description goes here
+Just a manager...
 
 ## Getting Started
+Download all legal software available for your country. I try to sort the huge amount of roms existing in Internet.
+
+
+## Sources
+![Image of Archive]( http://library2020.blog.archive.org/files/2017/02/ArchiveLogo_White-with-clear-background.png)
+*  [The Internet Archive SoftwareCollection](https://archive.org/details/software) - The Internet Archive Software Collection is the largest vintage and historical software library in the world, providing instant access to millions of programs, CD-ROM images, documentation and multimedia.
+
+
+<!-- ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
 ### Prerequisites
 
 What things you need to install the software and how to install them
@@ -81,7 +89,6 @@ See also the list of [contributors](https://github.com/your/project/contributors
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
-
 * Hat tip to anyone whose code was used
 * Inspiration
-* etc
+* etc -->
