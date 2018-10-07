@@ -7,7 +7,7 @@ Download all legal software available for your country. I try to sort the huge a
 
 
 ## Sources
-![Image of Archive]( http://library2020.blog.archive.org/files/2017/02/ArchiveLogo_White-with-clear-background.png)
+![Image of Archive]( https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Internet_Archive_logo_and_wordmark.svg/245px-Internet_Archive_logo_and_wordmark.svg.png)
 *  [The Internet Archive SoftwareCollection](https://archive.org/details/software) - The Internet Archive Software Collection is the largest vintage and historical software library in the world, providing instant access to millions of programs, CD-ROM images, documentation and multimedia.
 
 
