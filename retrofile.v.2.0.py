@@ -7,9 +7,13 @@ import ConfigParser, argparse
 import xmltodict
 import datetime
 from Crypto.Hash import SHA256
-from hachoir_parser import createParser
+from hachoir_core.error import HachoirError
 from hachoir_core.cmd_line import unicodeFilename
-from hachoir_core.stream import FileInputStream
+from hachoir_parser import createParser
+from hachoir_core.tools import makePrintable
+from hachoir_metadata import extractMetadata
+from hachoir_core.i18n import getTerminalCharset
+
 
 
 
@@ -99,22 +103,40 @@ def hike ():
         dir = dir_[len(dir_) - 1]
         print "DIRECTORY {0}".format(dir)
         total = len(filenames)
-        print root
-        print directories
+        #print root
+        #print directories
         for i in filenames:
             print "\t{0}\t{1}\t".format(i,getsize(join(root, i)))
             if HASH:
                 print "\t\t\t\t{0}".format(hashfile(join(root, i)))
             if MIME:
                 pf=join(root, i)
-                filename, realname = unicodeFilename(pf), i
-                parser = createParser(pf, realname)
-                if not parser:
-                    mimetype = 'text/plain'
-                    print mimetype
-                else:
-                    mimetype = str(parser.mime_type)
-                    print mimetype
+                metadata = metadata_for(pf)
+                print metadata
+
+def metadata_for(filename):
+
+    filename, realname = unicodeFilename(filename), filename
+    parser = createParser(filename, realname)
+    if not parser:
+     print "Unable to parse file"
+     exit(1)
+    try:
+     metadata = extractMetadata(parser)
+    except HachoirError, err:
+     print "Metadata extraction error: %s" % unicode(err)
+     metadata = None
+    if not metadata:
+     print "Unable to extract metadata"
+     exit(1)
+
+    text = metadata.exportPlaintext()
+    charset = getTerminalCharset()
+    #for line in text:
+     #print makePrintable(line, charset)
+
+    return metadata
+
 
 print ("Reading data from: {0}".format(roms))
 
@@ -122,28 +144,22 @@ if args.hash:
     HASH=True
 if args.mime:
     MIME=True
-
 if args.list:
     hike()
 elif args.filename and  os.path.exists(args.filename):
-    dir_ = args.filename.split("/")
-    file = dir_[len(dir_) - 1]
+    #dir_ = args.filename.split("/")
+    #file = dir_[len(dir_) - 1]
     print "Current working dir : %s" % os.getcwd()
-    if len(dir_)<2:
-        args.filename="/".join([os.getcwd(),file])
-        print args.filename
-        filename, realname = unicodeFilename(args.filename), file
-        parser = createParser(filename, realname)
-        if not parser:
-            mimetype = 'text/plain'
-            print mimetype
-        else:
-            mimetype = str(parser.mime_type)
-            print mimetype
-                        
-            
+    #st = os.stat(args.filename)
+    #git print st
+    if HASH:
+        print "\t\t\t\t{0}".format(hashfile(args.filename))
+        #args.filename="/".join([os.getcwd(),file])
+    if MIME:
+        print ("Getting data from {}".format(args.filename));
+        metadata = metadata_for(args.filename)
+        print metadata
 
 
-print "TOTAL SIZE:\t{0}".format(TOTALSIZE)
 if WRITE:
     log.close()
