@@ -95,6 +95,15 @@ MGMTTLSIZE = 0
 TOTALSIZE = 0
 NOMGMTTLSIZE = 0
 
+def fileinfo (path, file):
+    print "\t{0}\t{1} bytes\t".format(file, getsize(join(path, file)))
+    if HASH:
+        print "\t\t\t\t{0}".format(hashfile(join(path, file)))
+    if MIME:
+        pf = join(path, file)
+        metadata = metadata_for(pf)
+        print metadata
+
 def hike ():
     for root, directories, filenames in os.walk(roms,topdown=False):
         #print ("{0}-{1}-{2}").format(root, directories, filenames)
@@ -106,13 +115,7 @@ def hike ():
         #print root
         #print directories
         for i in filenames:
-            print "\t{0}\t{1}\t".format(i,getsize(join(root, i)))
-            if HASH:
-                print "\t\t\t\t{0}".format(hashfile(join(root, i)))
-            if MIME:
-                pf=join(root, i)
-                metadata = metadata_for(pf)
-                print metadata
+           fileinfo(root, i)
 
 def metadata_for(filename):
 
@@ -147,18 +150,11 @@ if args.mime:
 if args.list:
     hike()
 elif args.filename and  os.path.exists(args.filename):
-    #dir_ = args.filename.split("/")
-    #file = dir_[len(dir_) - 1]
-    print "Current working dir : %s" % os.getcwd()
-    #st = os.stat(args.filename)
-    #git print st
-    if HASH:
-        print "\t\t\t\t{0}".format(hashfile(args.filename))
-        #args.filename="/".join([os.getcwd(),file])
-    if MIME:
-        print ("Getting data from {}".format(args.filename));
-        metadata = metadata_for(args.filename)
-        print metadata
+    dir_ = args.filename.split("/")
+    file = dir_.pop()
+    dir_.insert(0,os.getcwd())
+    dir_ = "/".join(dir_)
+    fileinfo(dir_,file)
 
 
 if WRITE:
