@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # encoding=utf8
-import os,glob
+import os,glob,re, pprint
 from os.path import join, getsize
 import ConfigParser, argparse
 import xmltodict
@@ -57,8 +57,10 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument('--list',   "-l",   action='store_true',               help='files used')
 parser.add_argument('--hash',   "-s",   action='store_true',               help='files used')
+parser.add_argument('--hidden',   "-n",   action='store_true',               help='silent mode')
 parser.add_argument('--filename',  "-f", type=str, help='a filename to parse')
 parser.add_argument('--mime',  "-m", action='store_true',               help='files used')
+
 
 args = parser.parse_args()
 
@@ -66,6 +68,7 @@ args = parser.parse_args()
 VERBOSE = False
 HASH = False
 MIME = False
+HIDDEN = True
 
 NOTUSED = False
 WRITE = False
@@ -96,33 +99,43 @@ TOTALSIZE = 0
 NOMGMTTLSIZE = 0
 
 def fileinfo (path, file):
-    print "\t{0}\t{1} bytes\t".format(file, getsize(join(path, file)))
+    meta={}
+    meta['name']=file
+    meta['bytes']=getsize(join(path, file))
+    if HIDDEN:
+        print "\t{0}\t{1} bytes\t".format(file, getsize(join(path, file)))
     if HASH:
-        print "\t\t\t\t{0}".format(hashfile(join(path, file)))
+        hash = hashfile(join(path, file))
+        if HIDDEN :
+            print "\t\t\t\t{0}".format(hash)
+        meta ['hash'] = hash
     if MIME:
         pf = join(path, file)
         metadata = metadata_for(pf)
-        print metadata
+        charset = getTerminalCharset()
+        if HIDDEN:
+            for line in metadata:
+                print makePrintable(line, charset)
+        meta ['mime'] = metadata
+    return meta
+
 
 def hike ():
     for root, directories, filenames in os.walk(roms,topdown=False):
-        #print ("{0}-{1}-{2}").format(root, directories, filenames)
-        # Existe filelist en el directorio ?
         dir_ = root.split("/")
         dir = dir_[len(dir_) - 1]
         print "DIRECTORY {0}".format(dir)
-        total = len(filenames)
-        #print root
-        #print directories
+        #total = len(filenames)
         for i in filenames:
-           fileinfo(root, i)
+            meta = fileinfo(root, i)
+            data2dict(meta)
 
 def metadata_for(filename):
 
     filename, realname = unicodeFilename(filename), filename
     parser = createParser(filename, realname)
     if not parser:
-     print "Unable to parse file"
+     print "Unable to parse file [{0}]".format(filename)
      exit(1)
     try:
      metadata = extractMetadata(parser)
@@ -137,12 +150,51 @@ def metadata_for(filename):
     charset = getTerminalCharset()
     #for line in text:
      #print makePrintable(line, charset)
+    return text
 
-    return metadata
+def data2dict (meta):
+    filexpresion = 'File "(\w+[\s*\(\)\w*\[\]_-]*\.\w+)":'
+    sizexpresion = '- File size: (\w+.\w+ \w+)'
+    cfsexpresion = '- Compressed file size: (\w+.\w+ \w+)'
+    crateexpresion = '- Compression rate: (\w+.\w+)'
+    cdateexpresion = '- Creation date: (\d+ - \d+ - \d+ \d+:\d+:\d+)'
+    compexpresion = '- Compression: (\w+)'
+    mimexpresion = '- MIME type: (\w+[\s+\/]*\w+)'
+    endianexpresion = '- Endianness: (\w+[\s*\w*]*)'
+
+    files = []
+    file = {}
+    rom = {}
+    rom['name'] = meta['name']
+    rom['bytes'] = meta['bytes']
+    for element in meta['mime'][:3]:
+        if re.search(mimexpresion, element):
+            rom['mime'] = re.search(mimexpresion, element).group(1)
+        elif (re.search(endianexpresion, element)):
+            rom['endian'] = re.search(endianexpresion, element).group(1)
+    for element in meta['mime'][3:]:
+        # print element
+        if re.search(filexpresion, element):
+            file['name'] = re.search(filexpresion, element).group(1)
+        elif (re.search(sizexpresion, element)):
+            file['filesize'] = re.search(sizexpresion, element).group(1)
+        elif (re.search(cfsexpresion, element)):
+            file['CompressedFileSize'] = re.search(cfsexpresion, element).group(1)
+        elif (re.search(crateexpresion, element)):
+            file['CompressionRate'] = re.search(crateexpresion, element).group(1)
+        elif (re.search(cdateexpresion, element)):
+            file['CreationDate'] = re.search(cdateexpresion, element).group(1)
+        elif (re.search(compexpresion, element)):
+            file['Compression'] = re.search(compexpresion, element).group(1)
+            files.append(file)
+            file = {}
+    rom['files'] = files
+    pprint.pprint(rom, width=4)
 
 
 print ("Reading data from: {0}".format(roms))
-
+if args.hidden:
+    HIDDEN=False
 if args.hash:
     HASH=True
 if args.mime:
@@ -154,7 +206,11 @@ elif args.filename and  os.path.exists(args.filename):
     file = dir_.pop()
     dir_.insert(0,os.getcwd())
     dir_ = "/".join(dir_)
-    fileinfo(dir_,file)
+    meta=fileinfo(dir_,file)
+    data2dict(meta)
+
+
+
 
 
 if WRITE:
