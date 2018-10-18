@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # encoding=utf8
-import os,glob,re, pprint
+import os,glob,re, pprint, json
 from os.path import join, getsize
 import ConfigParser, argparse
 import xmltodict
@@ -14,13 +14,10 @@ from hachoir_core.tools import makePrintable
 from hachoir_metadata import extractMetadata
 from hachoir_core.i18n import getTerminalCharset
 
+# rom :  /Users/e019553/Documents/09.\ mame
 
 
 
-def ReadXML (xml_file,xml_attribs=True ):
-    with open(xml_file, "rb") as f:  # notice the "rb" mode
-        d = xmltodict.parse(f, xml_attribs=xml_attribs)
-    return d
 
 class logcsv:
     USERCONFIG = "config/env.ini"
@@ -44,12 +41,6 @@ class logcsv:
     def close (self):
         self.df.close()
 
-def hashfile (file,block_size=65536):
-    hash = SHA256.new()
-    with open(file, 'rb') as f:
-        for block in iter(lambda: f.read(block_size), b''):
-            hash.update(block)
-    return hash.hexdigest()
 
 parser = argparse.ArgumentParser(
     description='Process some file.',
@@ -60,43 +51,33 @@ parser.add_argument('--hash',   "-s",   action='store_true',               help=
 parser.add_argument('--hidden',   "-n",   action='store_true',               help='silent mode')
 parser.add_argument('--filename',  "-f", type=str, help='a filename to parse')
 parser.add_argument('--mime',  "-m", action='store_true',               help='files used')
+parser.add_argument('--test',  "-t", action='store_true',               help='check new functions')
 
 
 args = parser.parse_args()
-
 
 VERBOSE = False
 HASH = False
 MIME = False
 HIDDEN = True
 
-NOTUSED = False
-WRITE = False
-LIST = False
-XML = False
-IMAGE = False
-MGMTTLSIZE = 0
-TOTALSIZE = 0
-NOMGMTTLSIZE = 0
-
-percent = lambda x,y: (float(x)/float(y))*100 if y>0 else 0
-
-log=""
 ENVCONFIG = "config/env.ini"
 EnvConfig = ConfigParser.ConfigParser()
 Config = ConfigParser.ConfigParser()
 EnvConfig.read(ENVCONFIG)
 roms = EnvConfig.get('PATH', 'rom')
-filelist = EnvConfig.get('PATH', 'gamelist')
-DELIMITER = EnvConfig.get('PATH', 'delimiter')
-MANAGED = EnvConfig.get('PATH', 'managed')
-UNMANAGED = EnvConfig.get('PATH', 'unmanaged')
-NOTEXISTS = EnvConfig.get('PATH', 'notexists')
-TOTALUNMANAGED = EnvConfig.get('PATH', 'totalunmanaged')
 
-MGMTTLSIZE = 0
-TOTALSIZE = 0
-NOMGMTTLSIZE = 0
+
+
+
+percent = lambda x,y: (float(x)/float(y))*100 if y>0 else 0
+
+def hashfile (file,block_size=65536):
+    hash = SHA256.new()
+    with open(file, 'rb') as f:
+        for block in iter(lambda: f.read(block_size), b''):
+            hash.update(block)
+    return hash.hexdigest()
 
 def fileinfo (path, file):
     meta={}
@@ -118,7 +99,6 @@ def fileinfo (path, file):
                 print makePrintable(line, charset)
         meta ['mime'] = metadata
     return meta
-
 
 def hike ():
     for root, directories, filenames in os.walk(roms,topdown=False):
@@ -167,29 +147,35 @@ def data2dict (meta):
     rom = {}
     rom['name'] = meta['name']
     rom['bytes'] = meta['bytes']
-    for element in meta['mime'][:3]:
-        if re.search(mimexpresion, element):
-            rom['mime'] = re.search(mimexpresion, element).group(1)
-        elif (re.search(endianexpresion, element)):
-            rom['endian'] = re.search(endianexpresion, element).group(1)
-    for element in meta['mime'][3:]:
-        # print element
-        if re.search(filexpresion, element):
-            file['name'] = re.search(filexpresion, element).group(1)
-        elif (re.search(sizexpresion, element)):
-            file['filesize'] = re.search(sizexpresion, element).group(1)
-        elif (re.search(cfsexpresion, element)):
-            file['CompressedFileSize'] = re.search(cfsexpresion, element).group(1)
-        elif (re.search(crateexpresion, element)):
-            file['CompressionRate'] = re.search(crateexpresion, element).group(1)
-        elif (re.search(cdateexpresion, element)):
-            file['CreationDate'] = re.search(cdateexpresion, element).group(1)
-        elif (re.search(compexpresion, element)):
-            file['Compression'] = re.search(compexpresion, element).group(1)
-            files.append(file)
-            file = {}
-    rom['files'] = files
+    rom['KB'] = meta['bytes']/1024
+    if HASH:
+        rom['hash'] = meta['hash']
+    if MIME:
+        for element in meta['mime'][:3]:
+            if re.search(mimexpresion, element):
+                rom['mime'] = re.search(mimexpresion, element).group(1)
+            elif (re.search(endianexpresion, element)):
+                rom['endian'] = re.search(endianexpresion, element).group(1)
+        for element in meta['mime'][3:]:
+            # print element
+            if re.search(filexpresion, element):
+                file['name'] = re.search(filexpresion, element).group(1)
+            elif (re.search(sizexpresion, element)):
+                file['filesize'] = re.search(sizexpresion, element).group(1)
+            elif (re.search(cfsexpresion, element)):
+                file['CompressedFileSize'] = re.search(cfsexpresion, element).group(1)
+            elif (re.search(crateexpresion, element)):
+                file['CompressionRate'] = re.search(crateexpresion, element).group(1)
+            elif (re.search(cdateexpresion, element)):
+                file['CreationDate'] = re.search(cdateexpresion, element).group(1)
+            elif (re.search(compexpresion, element)):
+                file['Compression'] = re.search(compexpresion, element).group(1)
+                files.append(file)
+                file = {}
+        rom['files'] = files
+    print "contenido:"
     pprint.pprint(rom, width=4)
+
 
 
 print ("Reading data from: {0}".format(roms))
@@ -208,10 +194,13 @@ elif args.filename and  os.path.exists(args.filename):
     dir_ = "/".join(dir_)
     meta=fileinfo(dir_,file)
     data2dict(meta)
-
-
-
-
-
-if WRITE:
-    log.close()
+elif args.test:
+    roms = EnvConfig.get('GAMES', 'file')
+    if os.path.exists(roms):
+        with open(roms, 'r') as f:
+            gamestore = json.load(f)
+        extension = []
+        for i in gamestore['roms']:
+            #print i['Extension'].split(" ")
+            extension = list(set(extension + i['Extension'].split(" ")))
+        print extension

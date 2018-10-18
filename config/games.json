@@ -1,0 +1,151 @@
+{
+   "source" : "https://github.com/RetroPie",
+   "date" : "2018-10-17",
+   "roms": [
+      {
+        "name": "atari2600",
+        "long_name" : "Atari 2600",
+        "Description" : "The Atari 2600 was a home video game console released by Atari in 1977",
+        "Extension" : ".7z .a26 .bin .gz .rom .zip"
+      },
+      {
+        "name": "atari5200",
+        "long_name" : "Atari 5200",
+        "Description" : "Atari released a series of 8 bit computers (400, 800, 1200XL, 600XL, 800XL, 130XE, 65XE, 800XE, and XEGS) and a video game console known as the Atari 5200 from 1979 to 1992",
+        "Extension" : ".a52 .atr .bas .bin .car .dcm .xex .xfd .atr.gz .xfd.gz .7z .zip"
+      },
+      {
+        "name": "atari7800",
+        "long_name" : "Atari 7800",
+        "Description" : "The Atari 7800 was a video game console released by Atari in 1986.",
+        "Extension" : ".7z .a78 .bin .zip"
+      },
+      {
+        "name": "atari800",
+        "long_name" : "Atari 800",
+        "Description" : "Atari released a series of 8 bit computers (400, 800, 1200XL, 600XL, 800XL, 130XE, 65XE, 800XE, and XEGS) and a video game console known as the Atari 5200 from 1979 to 1992",
+        "Extension" : ".a52 .atr .bas .bin .car .dcm .xex .xfd .atr.gz .xfd.gz .7z .zip"
+      },
+      {
+        "name": "atarilynx",
+        "long_name" : "Atari Lynx",
+        "Description" : "The Atari Lynx is the world's first handheld gaming console with a color screen. It was released by Atari in 1989",
+        "Extension" : "7z .lnx .zip"
+      },
+      {
+        "name": "fba",
+        "long_name" : "FinalBurn Alpha",
+        "Description" : "Final Burn Alpha is a Multiple Arcade Emulator most popular for emulating Neo-Geo, Capcom, Konami, and Cave games. It is developed by the final burn team and originated from FinalBurn by Dave",
+        "Extension" : ".7z .zip"
+      },
+      {
+        "name": "fds",
+        "long_name" : "Famicom Disk System",
+        "Description" : "The Family Computer Disk System a.k.a. Famicom Disk System was released in Japan in 1986. It is an addon to the Famicom and used floppy disks.",
+        "Extension" : ".7z .fds .nes .zip"
+      },
+      {
+        "name": "gamegear",
+        "long_name" : "Game gear",
+        "Description" : "The Sega Game Gear was an 8 bit handheld gaming console released in 1990",
+        "Extension" : ".7z .bin .gg .sms .zip"
+      },
+      {
+        "name": "gb",
+        "long_name" : "Game Boy",
+        "Description" : "The Game Boy was released by Nintendo in 1989 thus kicking off the era of handheld gaming and Pokemon.",
+        "Extension" : ".7z .gb .zip"
+      },
+      {
+        "name": "gba",
+        "long_name" : "Game Boy Advance",
+        "Description" : "The Game Boy Advance is a 32 bit handheld video game console released by Nintendo in 2001.",
+        "Extension" : ".7z .gba .zip"
+
+      },
+      {
+        "name": "gbc",
+        "long_name" : "Game Boy Color",
+        "Description" : "The Game Boy Color was an 8 bit handheld gaming console released by Nintendo in 1998. Pokemon Yellow anyone?",
+        "Extension" : ".7z .gbc .zip"
+      },
+      {
+        "name": "genesis",
+        "long_name" : "Genesis",
+        "Description" : "This console, known as the Mega Drive everywhere except in the USA where it was renamed Genesis, was released by Sega in 1988",
+        "Extension" : "7z .bin .gen .md .sg .smd .zip"
+      },
+      {
+        "name": "mame-mame4all",
+        "long_name" : "MAME",
+        "Description" : "MAME stands for Multiple Arcade Machine Emulator. MAME can emulate thousands of games that otherwise would have been lost in the ash-heaps of history.",
+        "Extension" : ".zip .7z"
+      },
+      {
+        "name": "mastersystem",
+        "long_name" : "Master System",
+        "Description" : "The Sega Master System was a 4th generation video game console released by Sega in 1987.",
+        "Extension" : ".7z .bin .sms .zip"
+      },
+      {
+        "name": "megadrive",
+        "long_name" : "Mega Drive",
+        "Description" : "The Sega Master System was a 4th generation video game console released by Sega in 1987.",
+        "Extension" : ".7z .bin .sms .zip"
+      },
+      {
+        "name": "n64",
+        "long_name" : "Nintendo 64",
+        "Description" : "The Nintendo 64 is a 5th generation gaming console released by Nintendo in 1996",
+        "Extension" : ".z64 .n64 .v64 .zip"
+      },
+      {
+        "name": "neogeo",
+        "long_name" : "Neo Geo",
+        "Description" : "The Neo Geo is a cartridge-based arcade system board and home video game console released by SNK in 1990.",
+        "Extension" : ".7z .zip"
+      },
+      {
+        "name": "nes",
+        "long_name" : "Nintendo Entertainment System",
+        "Description" : "The Nintendo Entertainment System (NES) is an 8-bit home video game console that was released by Nintendo in 1985. This console officially ended the video game crash of 1983-1984.",
+        "Extension" : ".7z .fds .fig .mgd .nes .sfc .smc .swc .zip"
+      },
+      {
+        "name": "ngp",
+        "long_name" : "Neo Geo Pocket",
+        "Description" : "The Neo Geo Pocket was a handheld video game system released by SNK in 1998.",
+        "Extension" : ".7z .ngp .zip"
+      },
+      {
+        "name": "ngpc",
+        "long_name" : "Neo Geo Pocket Color",
+        "Description" : "The Neo Geo Pocket Color was a handheld video game system released by SNK in 1999.",
+        "Extension" : "ngpc"
+      },
+      {
+        "name": "psx",
+        "long_name" : "Playstation 1",
+        "Description" : "The PlayStation 1 is a 5th generation video game console released by Sony in 1994.",
+        "Extension" : ".cue .cbn .chd .img .iso .m3u .mdf .pbp .toc .z .znx"
+      },
+      {
+        "name": "sega32x",
+        "long_name" : "Sega 32X",
+        "Description" : "The Sega 32X was released as an add-on for the Sega Genesis in 1994. There was a whopping total of 40 games for this console- it was considered a commercial failure.",
+        "Extension" : ".32x .7z .bin .md .smd .zip"
+      },
+      {
+        "name": "snes",
+        "long_name" : "Super Nintendo Entertainment System",
+        "Description" : "The Super Nintendo Entertainment System (or SNES) was a 4th generation video game console released by Nintendo in 1991. It is one of the most popular consoles.",
+        "Extension" : ".7z .bin .bs .fig .mgd .sfc .smc .swc .zip"
+      },
+      {
+        "name": "zxspectrum",
+        "long_name" : "ZX Spectrum",
+        "Description" : "The ZX Spectrum was an 8 bit series of home computers released by Sinclair Research in 1982.",
+        "Extension" : "sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk"
+      }
+  ]
+}
