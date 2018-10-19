@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # encoding=utf8
-import os,glob,re, pprint, json
+import os,glob,re, pprint, json, io
 from os.path import join, getsize
 import ConfigParser, argparse
 import xmltodict
@@ -14,34 +14,7 @@ from hachoir_core.tools import makePrintable
 from hachoir_metadata import extractMetadata
 from hachoir_core.i18n import getTerminalCharset
 
-# rom :  /Users/e019553/Documents/09.\ mame
-
-
-
-
-class logcsv:
-    USERCONFIG = "config/env.ini"
-    Config = ConfigParser.ConfigParser()
-    Config.read(USERCONFIG)
-    filename = datetime.datetime.now().strftime("%Y%m%d")
-    absfile = Config.get('LOG', 'path') + filename + ".csv"
-    twitter_api = ""
-
-    def __init__(self):
-        if not os.path.exists(self.Config.get('LOG', 'path')):
-            print ('Dir {0} not found, created').format(Config.get('LOG', 'path'))
-            os.makedirs(self.Config.get('LOG', 'path'))
-            self.df = open(self.absfile, 'w')
-        elif not os.path.exists(self.absfile):
-            self.df = open(self.absfile, 'w')
-        else:
-            self.df = open(self.absfile, 'w')
-    def write (self, string2w):
-        self.df.write(string2w)
-    def close (self):
-        self.df.close()
-
-
+#-----------------------------------------------------------------------------------------------------------------------
 parser = argparse.ArgumentParser(
     description='Process some file.',
     epilog='comments > /dev/null'
@@ -51,8 +24,8 @@ parser.add_argument('--hash',   "-s",   action='store_true',               help=
 parser.add_argument('--hidden',   "-n",   action='store_true',               help='silent mode')
 parser.add_argument('--filename',  "-f", type=str, help='a filename to parse')
 parser.add_argument('--mime',  "-m", action='store_true',               help='files used')
+parser.add_argument('--write',  "-w", action='store_true',               help='write results')
 parser.add_argument('--test',  "-t", action='store_true',               help='check new functions')
-
 
 args = parser.parse_args()
 
@@ -60,63 +33,65 @@ VERBOSE = False
 HASH = False
 MIME = False
 HIDDEN = True
+WRITE = False
 
 ENVCONFIG = "config/env.ini"
 EnvConfig = ConfigParser.ConfigParser()
 Config = ConfigParser.ConfigParser()
 EnvConfig.read(ENVCONFIG)
-roms = EnvConfig.get('PATH', 'rom')
+ROMS = EnvConfig.get('PATH', 'rom')
 
-
-
-
+#-----------------------------------------------------------------------------------------------------------------------
 percent = lambda x,y: (float(x)/float(y))*100 if y>0 else 0
-
+#-----------------------------------------------------------------------------------------------------------------------
 def hashfile (file,block_size=65536):
     hash = SHA256.new()
     with open(file, 'rb') as f:
         for block in iter(lambda: f.read(block_size), b''):
             hash.update(block)
     return hash.hexdigest()
-
+#-----------------------------------------------------------------------------------------------------------------------
 def fileinfo (path, file):
     meta={}
     meta['name']=file
     meta['bytes']=getsize(join(path, file))
-    if HIDDEN:
-        print "\t{0}\t{1} bytes\t".format(file, getsize(join(path, file)))
+    #if HIDDEN:
+    #    print "\t{0}\t{1} bytes\t".format(file, getsize(join(path, file)))
     if HASH:
         hash = hashfile(join(path, file))
-        if HIDDEN :
-            print "\t\t\t\t{0}".format(hash)
+        #if HIDDEN :
+        #    print "\t\t\t\t{0}".format(hash)
         meta ['hash'] = hash
     if MIME:
         pf = join(path, file)
         metadata = metadata_for(pf)
         charset = getTerminalCharset()
-        if HIDDEN:
-            for line in metadata:
-                print makePrintable(line, charset)
+        #if HIDDEN:
+        #    for line in metadata:
+        #        print makePrintable(line, charset)
         meta ['mime'] = metadata
     return meta
-
-def hike ():
-    for root, directories, filenames in os.walk(roms,topdown=False):
+#-----------------------------------------------------------------------------------------------------------------------
+def hike (ROMS):
+    for root, directories, filenames in os.walk(ROMS,topdown=False):
         dir_ = root.split("/")
         dir = dir_[len(dir_) - 1]
         print "DIRECTORY {0}".format(dir)
         #total = len(filenames)
+        roms = EnvConfig.get('GAMES', 'file')
+        extension = GenerateExtension(roms)
         for i in filenames:
             meta = fileinfo(root, i)
-            data2dict(meta)
-
+            data2dict(meta, extension)
+#-----------------------------------------------------------------------------------------------------------------------
 def metadata_for(filename):
 
     filename, realname = unicodeFilename(filename), filename
     parser = createParser(filename, realname)
     if not parser:
      print "Unable to parse file [{0}]".format(filename)
-     exit(1)
+     text = ""
+     #exit(1)
     try:
      metadata = extractMetadata(parser)
     except HachoirError, err:
@@ -124,15 +99,30 @@ def metadata_for(filename):
      metadata = None
     if not metadata:
      print "Unable to extract metadata"
-     exit(1)
-
-    text = metadata.exportPlaintext()
-    charset = getTerminalCharset()
-    #for line in text:
-     #print makePrintable(line, charset)
+     #exit(1)
+    else:
+        text = metadata.exportPlaintext()
+        charset = getTerminalCharset()
+        #for line in text:
+         #print makePrintable(line, charset)
     return text
+#-----------------------------------------------------------------------------------------------------------------------
+def writeJson (datastore):
+    USERCONFIG = "config/env.ini"
+    Config = ConfigParser.ConfigParser()
+    Config.read(USERCONFIG)
+    filename = datetime.datetime.now().strftime("%Y%m%d")
+    absfile = Config.get('LOG', 'path') + filename + ".csv"
+    with io.open(absfile, 'w', encoding='utf-8') as f:
+        try:
+            f.write(json.dumps(datastore, ensure_ascii=False))
+        except:
+            print "ERROR"
+            print datastore
 
-def data2dict (meta):
+
+#-----------------------------------------------------------------------------------------------------------------------
+def data2dict (meta, extension):
     filexpresion = 'File "(\w+[\s*\(\)\w*\[\]_-]*\.\w+)":'
     sizexpresion = '- File size: (\w+.\w+ \w+)'
     cfsexpresion = '- Compressed file size: (\w+.\w+ \w+)'
@@ -141,7 +131,7 @@ def data2dict (meta):
     compexpresion = '- Compression: (\w+)'
     mimexpresion = '- MIME type: (\w+[\s+\/]*\w+)'
     endianexpresion = '- Endianness: (\w+[\s*\w*]*)'
-
+    filenamexp = '\w+[\s*\(\)\w*\[\]_-]*(.\w+)'
     files = []
     file = {}
     rom = {}
@@ -160,6 +150,8 @@ def data2dict (meta):
             # print element
             if re.search(filexpresion, element):
                 file['name'] = re.search(filexpresion, element).group(1)
+                extaux=re.search(filenamexp, file['name']).group(1)
+                file ['potential_consoles'] = extension[extaux]
             elif (re.search(sizexpresion, element)):
                 file['filesize'] = re.search(sizexpresion, element).group(1)
             elif (re.search(cfsexpresion, element)):
@@ -172,35 +164,57 @@ def data2dict (meta):
                 file['Compression'] = re.search(compexpresion, element).group(1)
                 files.append(file)
                 file = {}
-        rom['files'] = files
-    print "contenido:"
-    pprint.pprint(rom, width=4)
+        if len(files)>0 :
+            rom['files'] = files
+    if HIDDEN:
+        pprint.pprint(rom, width=4)
+    if WRITE:
+        writeJson(rom)
+#-----------------------------------------------------------------------------------------------------------------------
+def consolesWithExtension (ext, gamestore):
+    result = []
+    for i in gamestore['roms']:
+        if len(i['Extension'].split(" ")) > 1:
+            if ext+" " in i['Extension']:
+                result.append(i['name'])
+        elif ext in i['Extension']:
+            result.append(i['name'])
+    return result
+#-----------------------------------------------------------------------------------------------------------------------
+def GenerateExtension (roms):
+    extConsoles = {}
+    if os.path.exists(roms):
+        with open(roms, 'r') as f:
+            gamestore = json.load(f)
+        extension = []
+        for i in gamestore['roms']:
+            extension = list(set(extension + i['Extension'].split(" ")))
+        for i in extension:
+            extConsoles[i] = consolesWithExtension(i,gamestore)
+            #print "{0}:{1}".format(i,extConsoles[i])
+    return extConsoles
+#-----------------------------------------------------------------------------------------------------------------------
 
-
-
-print ("Reading data from: {0}".format(roms))
+print ("Reading data from: {0}".format(ROMS))
 if args.hidden:
     HIDDEN=False
 if args.hash:
     HASH=True
 if args.mime:
     MIME=True
+if args.write:
+    WRITE=True
 if args.list:
-    hike()
+    hike(ROMS)
 elif args.filename and  os.path.exists(args.filename):
     dir_ = args.filename.split("/")
     file = dir_.pop()
     dir_.insert(0,os.getcwd())
     dir_ = "/".join(dir_)
-    meta=fileinfo(dir_,file)
-    data2dict(meta)
-elif args.test:
     roms = EnvConfig.get('GAMES', 'file')
-    if os.path.exists(roms):
-        with open(roms, 'r') as f:
-            gamestore = json.load(f)
-        extension = []
-        for i in gamestore['roms']:
-            #print i['Extension'].split(" ")
-            extension = list(set(extension + i['Extension'].split(" ")))
-        print extension
+    extension = GenerateExtension(roms)
+    meta=fileinfo(dir_,file)
+    data2dict(meta, extension)
+
+elif args.test:
+    print "test"

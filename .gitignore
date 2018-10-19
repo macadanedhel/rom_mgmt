@@ -1,7 +1,4 @@
-.DS_Store
-.idea
+.*
 config/env.ini
-.ldatest
 log
 *test*
-.ftpconfig

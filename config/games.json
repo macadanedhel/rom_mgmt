@@ -30,7 +30,7 @@
         "name": "atarilynx",
         "long_name" : "Atari Lynx",
         "Description" : "The Atari Lynx is the world's first handheld gaming console with a color screen. It was released by Atari in 1989",
-        "Extension" : "7z .lnx .zip"
+        "Extension" : ".7z .lnx .zip"
       },
       {
         "name": "fba",
@@ -73,7 +73,7 @@
         "name": "genesis",
         "long_name" : "Genesis",
         "Description" : "This console, known as the Mega Drive everywhere except in the USA where it was renamed Genesis, was released by Sega in 1988",
-        "Extension" : "7z .bin .gen .md .sg .smd .zip"
+        "Extension" : ".7z .bin .gen .md .sg .smd .zip"
       },
       {
         "name": "mame-mame4all",
@@ -121,7 +121,7 @@
         "name": "ngpc",
         "long_name" : "Neo Geo Pocket Color",
         "Description" : "The Neo Geo Pocket Color was a handheld video game system released by SNK in 1999.",
-        "Extension" : "ngpc"
+        "Extension" : ".ngpc"
       },
       {
         "name": "psx",
@@ -145,7 +145,7 @@
         "name": "zxspectrum",
         "long_name" : "ZX Spectrum",
         "Description" : "The ZX Spectrum was an 8 bit series of home computers released by Sinclair Research in 1982.",
-        "Extension" : "sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk"
+        "Extension" : ".sna .szx .z80 .tap .tzx .gz .udi .mgt .img .trd .scl .dsk"
       }
   ]
 }
