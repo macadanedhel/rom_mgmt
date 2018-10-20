@@ -25,6 +25,7 @@ parser.add_argument('--hidden',   "-n",   action='store_true',               hel
 parser.add_argument('--filename',  "-f", type=str, help='a filename to parse')
 parser.add_argument('--mime',  "-m", action='store_true',               help='files used')
 parser.add_argument('--write',  "-w", action='store_true',               help='write results')
+parser.add_argument('--listextension',  "-x", action='store_true',               help='list managed extensions ')
 parser.add_argument('--test',  "-t", action='store_true',               help='check new functions')
 
 args = parser.parse_args()
@@ -34,6 +35,7 @@ HASH = False
 MIME = False
 HIDDEN = True
 WRITE = False
+EXT = False
 
 ENVCONFIG = "config/env.ini"
 EnvConfig = ConfigParser.ConfigParser()
@@ -90,7 +92,6 @@ def metadata_for(filename):
     parser = createParser(filename, realname)
     if not parser:
      print "Unable to parse file [{0}]".format(filename)
-     text = ""
      #exit(1)
     try:
      metadata = extractMetadata(parser)
@@ -99,10 +100,11 @@ def metadata_for(filename):
      metadata = None
     if not metadata:
      print "Unable to extract metadata"
+     text = ["Unable to extract metadata"]
      #exit(1)
     else:
         text = metadata.exportPlaintext()
-        charset = getTerminalCharset()
+        #charset = getTerminalCharset()
         #for line in text:
          #print makePrintable(line, charset)
     return text
@@ -114,11 +116,13 @@ def writeJson (datastore):
     filename = datetime.datetime.now().strftime("%Y%m%d")
     absfile = Config.get('LOG', 'path') + filename + ".csv"
     with io.open(absfile, 'w', encoding='utf-8') as f:
-        try:
-            f.write(json.dumps(datastore, ensure_ascii=False))
-        except:
-            print "ERROR"
-            print datastore
+        #try:
+        f.write(json.dumps(unicode(datastore), ensure_ascii=False))
+
+        #except:
+        #    print "ERROR"
+        #    print datastore
+
 
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -147,7 +151,6 @@ def data2dict (meta, extension):
             elif (re.search(endianexpresion, element)):
                 rom['endian'] = re.search(endianexpresion, element).group(1)
         for element in meta['mime'][3:]:
-            # print element
             if re.search(filexpresion, element):
                 file['name'] = re.search(filexpresion, element).group(1)
                 extaux=re.search(filenamexp, file['name']).group(1)
@@ -164,6 +167,9 @@ def data2dict (meta, extension):
                 file['Compression'] = re.search(compexpresion, element).group(1)
                 files.append(file)
                 file = {}
+            else:
+                file['no_mime'] = unicode(element)
+                print "-----"+unicode(element)
         if len(files)>0 :
             rom['files'] = files
     if HIDDEN:
@@ -191,7 +197,8 @@ def GenerateExtension (roms):
             extension = list(set(extension + i['Extension'].split(" ")))
         for i in extension:
             extConsoles[i] = consolesWithExtension(i,gamestore)
-            #print "{0}:{1}".format(i,extConsoles[i])
+            if EXT:
+                print "{0}:{1}".format(i,extConsoles[i])
     return extConsoles
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -215,6 +222,9 @@ elif args.filename and  os.path.exists(args.filename):
     extension = GenerateExtension(roms)
     meta=fileinfo(dir_,file)
     data2dict(meta, extension)
-
+elif args.listextension:
+    EXT = True
+    roms = EnvConfig.get('GAMES', 'file')
+    GenerateExtension(roms)
 elif args.test:
     print "test"
