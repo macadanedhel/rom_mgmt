@@ -1,4 +1,8 @@
-.*
+.ftpconfig
+.ldatest
+.DS_Store
+.idea
 config/env.ini
 log
 *test*
+extension.txt
