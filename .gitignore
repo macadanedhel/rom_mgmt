@@ -5,4 +5,4 @@
 config/env.ini
 log
 *test*
-extension.txt
+config/extension.md
