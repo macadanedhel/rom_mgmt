@@ -114,17 +114,9 @@ def writeJson (datastore):
     Config = ConfigParser.ConfigParser()
     Config.read(USERCONFIG)
     filename = datetime.datetime.now().strftime("%Y%m%d")
-    absfile = Config.get('LOG', 'path') + filename + ".csv"
-    with io.open(absfile, 'w', encoding='utf-8') as f:
-        #try:
-        f.write(json.dumps(unicode(datastore), ensure_ascii=False))
-
-        #except:
-        #    print "ERROR"
-        #    print datastore
-
-
-
+    absfile = Config.get('LOG', 'path') + filename + ".json"
+    with io.open(absfile, 'a', encoding='utf-8') as f:
+        f.write(unicode(json.dumps(datastore)))
 #-----------------------------------------------------------------------------------------------------------------------
 def data2dict (meta, extension):
     filexpresion = 'File "(\w+[\s*\(\)\w*\[\]_-]*\.\w+)":'
@@ -169,11 +161,12 @@ def data2dict (meta, extension):
                 file = {}
             else:
                 file['no_mime'] = unicode(element)
-                print "-----"+unicode(element)
+                print '-----'+unicode(element)
         if len(files)>0 :
             rom['files'] = files
     if HIDDEN:
         pprint.pprint(rom, width=4)
+
     if WRITE:
         writeJson(rom)
 #-----------------------------------------------------------------------------------------------------------------------
